@@ -9,8 +9,16 @@
 import UIKit
 
 class ViewController: UIViewController {
+    
     // MARK: - Variables
-    let eggTimes = ["Soft":5, "Medium":7, "Hard":12]
+    let defaultMessage = "How do you like your eggs?"
+    let doneMessage = "DONE"
+    let eggTimes = ["Soft":300, "Medium":420, "Hard":720]
+    var secondsRemaining = 0
+    var timer : Timer?
+    
+    // MARK: - IBOutlets
+    @IBOutlet weak var messageLabel: UILabel!
     
     // MARK: - IBActions
     @IBAction func hardnessSelected(_ sender: UIButton) {
@@ -18,8 +26,49 @@ class ViewController: UIViewController {
            return
         }
         
-        if let result = eggTimes[hardness]{
-            print(result)
+        guard let seconds = eggTimes[hardness] else{
+           return
         }
-    }    
+                
+        startCoutdownTimerTo(seconds)
+    }
+    
+    // MARK: - Public Methods
+    @objc func updateTimer() {
+        if secondsRemaining > 0 {
+            print("\(secondsRemaining) seconds.")
+            secondsRemaining-=1
+        }else{
+            update(message: doneMessage)
+            stopTimer()
+        }
+    }
+    
+    // MARK: - Private Methods
+    private func startCoutdownTimerTo(_ seconds: Int) {
+        update(message: defaultMessage)
+        secondsRemaining = seconds
+        stopTimer()
+        startTimer()
+    }
+    
+    private func startTimer(){
+        timer = Timer.scheduledTimer(
+            timeInterval: 1.0,
+            target: self,
+            selector: #selector(updateTimer),
+            userInfo: nil,
+            repeats: true
+        )
+    }
+    
+    private func stopTimer(){
+        if let t = timer{
+            t.invalidate()
+        }
+    }
+    
+    private func update(message: String){
+        messageLabel.text = message
+    }
 }
